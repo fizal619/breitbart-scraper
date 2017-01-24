@@ -16,7 +16,7 @@ app = Flask(__name__)
 def news():
 	freshNews = []
 	search = request.args.get('s')
-	r  = requests.get("http://www.breitbart.com?" + request.args.get('s'))
+	r  = requests.get("http://www.breitbart.com?s=" + request.args.get('s'))
 	data = r.text
 	# print(data)
 	soup = BeautifulSoup(data)
