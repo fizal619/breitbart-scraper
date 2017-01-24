@@ -1,5 +1,6 @@
 from flask import Flask
 from flask import jsonify
+from flask import request
 from bs4 import BeautifulSoup
 from newspaper import Article
 
@@ -14,29 +15,33 @@ app = Flask(__name__)
 @app.route("/")
 def news():
 	freshNews = []
-
-	r  = requests.get("https://news.ycombinator.com/")
+	search = request.args.get('s')
+	r  = requests.get("http://www.breitbart.com?" + request.args.get('s'))
 	data = r.text
+	# print(data)
 	soup = BeautifulSoup(data)
-
-	for link in soup.find_all('a'):
+	articles = soup.find_all('h2', {'class': 'title'})
+	for article in articles:
 		if len(freshNews) == 20:
 			return jsonify(freshNews)
 		try:
-			if "storylink" in link.get("class"):
-				# print(link.get("class"))
-				article = Article(link.get("href"))
-				article.download()
-				article.parse()
-				freshNews.append({
-					"title": article.title,
-					"content": article.text
-					})
-	
+			link = article.find('a')
+			print(link.get("href"))
+			item = Article("http://www.breitbart.com" + link.get("href"))
+			item.download()
+			item.parse()
+			freshNews.append({
+				"title": item.title,
+				"content": item.text,
+				"link": "http://www.breitbart.com" + link.get("href")
+				})
+
 
 		except Exception as e:
 			4+4
-
+			print(">>>>>>>>> ERROR?!")
+	print("nope...")
+	return data
 
 
 
